@@ -5,20 +5,20 @@ const runButton = $("run-button");
 const errorMessage = $("form-error");
 const evidence = $("evidence");
 const previewBadge = $("preview-badge");
-const replayBadge = $("replay-badge");
 const replayNote = $("replay-note");
 const proofStatus = $("proof-status");
 const proofExplanation = $("proof-explanation");
 const observedPath = $("observed-path");
 const examples = [...document.querySelectorAll("[data-question]")];
 const cards = {
-  before: { card: $("before-card"), status: $("before-status"), answer: $("before-answer"), steps: $("before-steps"), time: $("before-time"), source: $("before-source"), sourceText: $("before-source-text"), sourceId: $("before-source-id"), result: null },
-  after: { card: $("after-card"), status: $("after-status"), answer: $("after-answer"), steps: $("after-steps"), time: $("after-time"), source: $("after-source"), sourceText: $("after-source-text"), sourceId: $("after-source-id"), result: null }
+  before: { card: $("before-card"), status: $("before-status"), answer: $("before-answer"), steps: $("before-steps"), time: $("before-time"), source: $("before-source"), sourceText: $("before-source-text"), sourceId: $("before-source-id"), outcome: $("before-outcome"), detail: $("before-detail"), result: null },
+  after: { card: $("after-card"), status: $("after-status"), answer: $("after-answer"), steps: $("after-steps"), time: $("after-time"), source: $("after-source"), sourceText: $("after-source-text"), sourceId: $("after-source-id"), outcome: $("after-outcome"), detail: $("after-detail"), result: null }
 };
 
 let running = false;
 const params = new URLSearchParams(location.search);
 const replayMode = document.querySelector('meta[name="demo-mode"]')?.content === "replay" || params.get("replay") === "1";
+if (replayMode) document.body.classList.add("replay-mode");
 let previewMode = !replayMode && params.get("preview") === "1";
 let replayPromise;
 let replayRecordedAt = "";
@@ -110,6 +110,11 @@ function renderProof() {
     && (!replayMode || replayEvidenceMatches));
   evidence.hidden = false;
   observedPath.hidden = !verified;
+  $("replay-proof").hidden = !replayMode || !verified;
+  if (replayMode && !verified) {
+    errorMessage.textContent = "Recorded memory path could not be verified. Inspect the trace below.";
+    errorMessage.hidden = false;
+  }
   renderHistoryEvidence(historyRecords);
   proofStatus.dataset.state = previewMode ? "preview" : verified ? "verified" : "unverified";
   proofStatus.textContent = previewMode ? "Sample proof layout" : verified ? (replayMode ? "Recorded crossing verified" : "Crossing verified") : "Crossing not verified";
@@ -140,11 +145,26 @@ function showResult(agent, result) {
     view.time.textContent = "—";
     view.steps.replaceChildren();
     view.source.hidden = true;
+    view.outcome.hidden = true;
     renderProof();
     return;
   }
 
   setCardState(agent, "done", result.answer.replace(/\*\*(Checked:)\*\*/gi, "$1"));
+  if (replayMode) {
+    const locationName = agent === "before" ? "Brightwater Hall" : "Alder Branch Library";
+    const source = selectedSource(agent, result);
+    view.outcome.hidden = !(source?.text?.includes(locationName) && result.answer.includes(locationName));
+    const accessQuestion = prompt.value.toLowerCase().includes("wheelchair accessible");
+    let outcomeLabel = agent === "before" ? "OLDER HELPLINE NOTE" : "NEWER PANTRY UPDATE";
+    if (accessQuestion && agent === "before" && result.answer.includes("don't have any information")) {
+      outcomeLabel = "ACCESS NOT CONFIRMED";
+    } else if (accessQuestion && agent === "after" && result.answer.includes("step-free entrance")) {
+      outcomeLabel = "STEP-FREE ACCESS FOUND";
+    }
+    view.outcome.querySelector("small").textContent = outcomeLabel;
+    view.detail.open = false;
+  }
   view.time.textContent = `${Number(result.seconds).toFixed(1)}s`;
   view.steps.replaceChildren();
   (result.tools || []).forEach((tool, index) => {
@@ -214,6 +234,8 @@ async function compare(event) {
   errorMessage.hidden = true;
   previewBadge.hidden = true;
   evidence.hidden = true;
+  $("replay-proof").hidden = true;
+  if (replayMode) $("evidence-detail").open = false;
   prompt.disabled = true;
   examples.forEach((button) => { button.disabled = true; });
   runButton.disabled = true;
@@ -224,6 +246,8 @@ async function compare(event) {
     cards[agent].time.textContent = "—";
     cards[agent].steps.replaceChildren();
     cards[agent].source.hidden = true;
+    cards[agent].outcome.hidden = true;
+    if (replayMode) cards[agent].detail.open = false;
   }
 
   try {
@@ -235,6 +259,8 @@ async function compare(event) {
       }
       replayRecordedAt = typeof scenario.recordedAt === "string" ? `${scenario.recordedAt.slice(0, 10)} UTC` : "an unknown date";
       replayNote.textContent = `Recorded ${replayRecordedAt} with real agents and Neo4j Agent Memory. Dates in these fictional answers are frozen; choose another question to compare the saved runs.`;
+      $("replay-question").textContent = `“${scenario.question}”`;
+      $("replay-question").hidden = false;
       showResult("before", scenario.results.before);
       showResult("after", scenario.results.after);
     } else {
@@ -254,7 +280,7 @@ async function compare(event) {
     examples.forEach((button) => { button.disabled = false; });
     runButton.disabled = false;
     runButton.querySelector("span").textContent = replayMode ? "Play recorded comparison" : "Run comparison";
-    runButton.focus();
+    if (!replayMode) runButton.focus();
   }
 }
 
@@ -271,24 +297,37 @@ examples.forEach((button) => button.addEventListener("click", () => {
     replayNote.textContent = replaySummary;
     examples.forEach((item) => item.setAttribute("aria-pressed", String(item === button)));
     evidence.hidden = true;
+    $("replay-proof").hidden = true;
+    $("replay-question").textContent = `“${prompt.value}”`;
+    $("replay-question").hidden = false;
     for (const agent of Object.keys(cards)) {
       cards[agent].result = null;
       setCardState(agent, "ready", "Play this recorded comparison to see the answer.");
       cards[agent].time.textContent = "—";
       cards[agent].steps.replaceChildren();
       cards[agent].source.hidden = true;
+      cards[agent].outcome.hidden = true;
+      cards[agent].detail.open = false;
     }
+    form.requestSubmit();
+    return;
   }
   prompt.focus();
 }));
 
 if (replayMode) {
-  replayBadge.hidden = false;
   replayNote.hidden = false;
+  $("intro-eyebrow").textContent = "RECORDED AGENT RUN · OCTOBER 2026";
+  $("headline-first").textContent = "Silo misses the move.";
+  $("headline-second").textContent = "Graph finds it.";
+  $("replay-question").textContent = `“${prompt.value.trim()}”`;
+  $("replay-question").hidden = false;
+  $("evidence-detail").open = false;
+  Object.values(cards).forEach((view) => { view.detail.open = false; });
   prompt.readOnly = true;
   prompt.setAttribute("aria-describedby", "replay-note");
   $("prompt-label").textContent = "Choose a recorded question";
-  $("prompt-caption").textContent = "Same model and question, two memory scopes";
+  $("prompt-caption").textContent = "Same model; only memory access changes";
   document.querySelector(".examples").setAttribute("aria-label", "Recorded questions");
   $("evidence-eyebrow").textContent = "RECORDED MEMORY READS · SOURCE IDS";
   $("calls-summary").textContent = "Inspect the recorded memory calls and source IDs";
