@@ -416,9 +416,8 @@ body:not(.replay-mode) .evidence-detail > summary { display: none; }
   line-height: 1.4;
   overflow-wrap: anywhere;
 }
-.replay-data-link { margin: 10px 0 0; }
+.replay-data-link { display: flex; flex-wrap: wrap; gap: 8px 14px; margin: 10px 0 0; }
 .replay-data-link a { color: #0877bc; font-weight: 750; }
-.replay-data-link a + a { margin-left: 14px; }
 
 .trace-player {
   margin-top: 14px;
