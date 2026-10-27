@@ -4,7 +4,6 @@ const prompt = $("prompt");
 const runButton = $("run-button");
 const errorMessage = $("form-error");
 const evidence = $("evidence");
-const previewBadge = $("preview-badge");
 const replayNote = $("replay-note");
 const proofStatus = $("proof-status");
 const proofExplanation = $("proof-explanation");
@@ -19,10 +18,15 @@ let running = false;
 const params = new URLSearchParams(location.search);
 const replayMode = document.querySelector('meta[name="demo-mode"]')?.content === "replay" || params.get("replay") === "1";
 if (replayMode) document.body.classList.add("replay-mode");
-let previewMode = !replayMode && params.get("preview") === "1";
 let replayPromise;
 let replayRecordedAt = "";
 let replaySummary = "These fictional runs were recorded in October 2026. Choose a question to inspect the saved answers, memory calls, and source IDs; the dates in the answers are frozen.";
+let replayTimer;
+let replayScenario;
+let replaySteps = [];
+let replayStepIndex = 0;
+let replayPaused = false;
+let replayDisplay = {};
 
 function setCardState(agent, state, message) {
   const view = cards[agent];
@@ -116,12 +120,10 @@ function renderProof() {
     errorMessage.hidden = false;
   }
   renderHistoryEvidence(historyRecords);
-  proofStatus.dataset.state = previewMode ? "preview" : verified ? "verified" : "unverified";
-  proofStatus.textContent = previewMode ? "Sample proof layout" : verified ? (replayMode ? "Recorded crossing verified" : "Crossing verified") : "Crossing not verified";
+  proofStatus.dataset.state = verified ? "verified" : "unverified";
+  proofStatus.textContent = verified ? (replayMode ? "Recorded crossing verified" : "Crossing verified") : "Crossing not verified";
 
-  if (previewMode) {
-    proofExplanation.textContent = "This is sample content to show the layout. Run a comparison to inspect real memory tool results.";
-  } else if (verified) {
+  if (verified) {
     proofExplanation.textContent = `${replayMode ? `This run was recorded ${replayRecordedAt || "earlier"}. ` : ""}The captured entity-history result linked the helpline and pantry conversations. The shared-graph agent then read the pantry source message. The IDs and excerpts below come from the memory tool responses.`;
   } else {
     proofExplanation.textContent = "The captured tool results did not establish a cross-conversation path. The answer difference alone is not proof of graph use; inspect the calls below.";
@@ -152,11 +154,12 @@ function showResult(agent, result) {
 
   setCardState(agent, "done", result.answer.replace(/\*\*(Checked:)\*\*/gi, "$1"));
   if (replayMode) {
-    const locationName = agent === "before" ? "Brightwater Hall" : "Alder Branch Library";
+    const locationName = replayDisplay[agent];
     const source = selectedSource(agent, result);
-    view.outcome.hidden = !(source?.text?.includes(locationName) && result.answer.includes(locationName));
+    view.outcome.querySelector("strong").textContent = locationName || "";
+    view.outcome.hidden = !(locationName && source?.text?.includes(locationName) && result.answer.includes(locationName));
     const accessQuestion = prompt.value.toLowerCase().includes("wheelchair accessible");
-    let outcomeLabel = agent === "before" ? "OLDER HELPLINE NOTE" : "NEWER PANTRY UPDATE";
+    let outcomeLabel = agent === "before" ? "OLDER HELPLINE NOTE" : "PANTRY MOVE NOTICE";
     if (accessQuestion && agent === "before" && result.answer.includes("don't have any information")) {
       outcomeLabel = "ACCESS NOT CONFIRMED";
     } else if (accessQuestion && agent === "after" && result.answer.includes("step-free entrance")) {
@@ -209,6 +212,14 @@ async function loadReplay() {
       const dates = [...new Set(data.scenarios.map((item) => item.recordedAt?.slice(0, 10)).filter(Boolean))];
       replaySummary = `Captured ${dates.join(" and ") || "on an unknown date"} UTC with real agents and Neo4j Agent Memory. Choose a question to inspect the saved memory evidence; dates in these fictional answers are frozen.`;
       replayNote.textContent = replaySummary;
+      if (typeof data.traceEventsFile === "string" && /^[a-z0-9._-]+\.json$/i.test(data.traceEventsFile)) {
+        $("trace-events-link").href = `./${data.traceEventsFile}`;
+        $("trace-events-link").hidden = false;
+      }
+      if (typeof data.graphProofFile === "string" && /^[a-z0-9._-]+\.json$/i.test(data.graphProofFile)) {
+        $("graph-proof-link").href = `./${data.graphProofFile}`;
+        $("graph-proof-link").hidden = false;
+      }
       return data.scenarios;
     })().catch((error) => {
       replayPromise = undefined;
@@ -216,6 +227,180 @@ async function loadReplay() {
     });
   }
   return replayPromise;
+}
+
+function shortId(value) {
+  return value ? `${String(value).slice(0, 8)}…` : "";
+}
+
+function traceNode(kind, state, name, id) {
+  $(`trace-${kind}`).dataset.state = state;
+  $(`trace-${kind}-name`).textContent = name;
+  $(`trace-${kind}-id`).textContent = shortId(id);
+  $(`trace-${kind}-id`).title = id || "";
+}
+
+function resetTrace() {
+  clearTimeout(replayTimer);
+  replayTimer = undefined;
+  replayScenario = undefined;
+  replaySteps = [];
+  replayStepIndex = 0;
+  replayPaused = false;
+  $("trace-player").hidden = true;
+  $("trace-toggle").textContent = "Pause";
+  $("trace-count").textContent = "0 / 0";
+  $("trace-progress-fill").style.width = "0%";
+  $("trace-agent").textContent = "Waiting for recorded calls";
+  $("trace-call").textContent = "";
+  $("trace-finding").textContent = "";
+  $("trace-receipts").replaceChildren();
+  traceNode("helpline", "waiting", "—", "");
+  traceNode("entity", "waiting", "—", "");
+  traceNode("pantry", "waiting", "—", "");
+  $("trace-link-one").dataset.state = "waiting";
+  $("trace-link-two").dataset.state = "waiting";
+}
+
+function replayCallText(call) {
+  const input = Object.entries(call.input || {}).map(([key, value]) => {
+    const text = Array.isArray(value) ? value.join(", ") : String(value);
+    return `${key}: ${/^[0-9a-f]{8}-/.test(text) ? shortId(text) : text}`;
+  }).join(" · ");
+  return `${call.tool || "memory tool"}(${input})`;
+}
+
+function renderTraceReceipts(messages, helplineId, pantryId) {
+  const container = $("trace-receipts");
+  container.replaceChildren();
+  for (const message of messages || []) {
+    const row = document.createElement("div");
+    const label = document.createElement("strong");
+    label.textContent = message.conversationId === helplineId ? "Helpline source"
+      : message.conversationId === pantryId ? "Pantry source" : "Returned message";
+    const excerpt = document.createElement("p");
+    excerpt.textContent = message.text || "Source text unavailable";
+    const ids = document.createElement("code");
+    ids.textContent = `conversation ${message.conversationId || "unknown"}${message.messageId ? ` · message ${message.messageId}` : ""}`;
+    row.append(label, excerpt, ids);
+    container.append(row);
+  }
+}
+
+function renderEntityReceipt(receipt) {
+  if (!receipt.entityId) return;
+  const row = document.createElement("div");
+  const label = document.createElement("strong");
+  label.textContent = receipt.entityName || "Found entity";
+  const id = document.createElement("code");
+  id.textContent = `entity ${receipt.entityId}`;
+  row.append(label, id);
+  $("trace-receipts").append(row);
+}
+
+function relevantPantryMessage(messages, question) {
+  const cue = /wheelchair|accessible/i.test(question)
+    ? /step-free|elevator|accessible/i : /moves|Saturday/i;
+  return messages?.find((message) => cue.test(message.text || "")) || messages?.[0];
+}
+
+function advanceReplay() {
+  if (!replayScenario || replayStepIndex >= replaySteps.length) return;
+  const step = replaySteps[replayStepIndex++];
+  const { before, after } = replayScenario.results;
+  const helpline = selectedSource("before", before);
+  const pantry = selectedSource("after", after);
+  const bridge = after.proof?.bridge;
+  const history = Array.isArray(bridge?.historyEvidence) ? bridge.historyEvidence : [];
+  const bothInHistory = history.some((item) => item.conversationId === helpline?.conversationId)
+    && history.some((item) => item.conversationId === pantry?.conversationId);
+  $("trace-count").textContent = `${replayStepIndex} / ${replaySteps.length}`;
+  $("trace-progress-fill").style.width = `${100 * replayStepIndex / replaySteps.length}%`;
+  $("trace-agent").textContent = step.agent === "both" ? "BOTH AGENTS · SAME KNOWN ID"
+    : step.agent === "before" ? "SILOED MEMORY" : "SHARED GRAPH";
+  $("trace-call").textContent = `${step.agent === "both" ? "2 × " : ""}${replayCallText(step.call)}`;
+  $("trace-call").title = JSON.stringify(step.call.input || {});
+  const receipt = step.call.receipt || {};
+  $("trace-finding").textContent = receipt.summary || "";
+  renderTraceReceipts(receipt.messages, helpline?.conversationId, pantry?.conversationId);
+
+  if ((step.agent === "before" || step.agent === "both") && step.call.tool === "get_conversation"
+      && step.call.input?.session_id === helpline?.conversationId) {
+    $("trace-finding").textContent = step.agent === "both"
+      ? "One known conversation ID finds the old note. Only the graph agent continues."
+      : receipt.summary || "Returned the helpline source.";
+    if (!receipt.messages?.length) renderTraceReceipts([helpline], helpline.conversationId, pantry?.conversationId);
+    traceNode("helpline", "read", replayDisplay.before, helpline.conversationId);
+    showResult("before", before);
+  } else if (step.agent === "after" && step.call.tool === "get_conversation"
+      && step.call.input?.session_id === helpline?.conversationId) {
+    if (!receipt.summary) $("trace-finding").textContent = "Read the same helpline note.";
+    if (!receipt.messages?.length) renderTraceReceipts([helpline], helpline.conversationId, pantry?.conversationId);
+  } else if (step.agent === "after" && step.call.tool === "search"
+      && receipt.entityId === bridge?.entityId) {
+    renderEntityReceipt(receipt);
+    traceNode("entity", "found", receipt.entityName || bridge.name || "Shared entity", receipt.entityId);
+  } else if (step.agent === "after" && step.call.tool === "get_entity_history"
+      && step.call.input?.entity_id === bridge?.entityId && bothInHistory) {
+    if (!receipt.summary) $("trace-finding").textContent = "History links the two conversations.";
+    if (!receipt.messages?.length) renderTraceReceipts(history, helpline.conversationId, pantry.conversationId);
+    traceNode("entity", "read", bridge.name || "Shared entity", bridge.entityId);
+    traceNode("pantry", "linked", "Linked conversation", pantry.conversationId);
+    $("trace-link-one").dataset.state = "read";
+    $("trace-link-two").dataset.state = "read";
+  } else if (step.agent === "after" && step.call.tool === "get_conversation"
+      && step.call.input?.session_id === pantry?.conversationId) {
+    if (!receipt.summary) $("trace-finding").textContent = "Returned the newer pantry source.";
+    const relevantMessage = relevantPantryMessage(receipt.messages, replayScenario.question);
+    renderTraceReceipts([relevantMessage || pantry], helpline?.conversationId, pantry.conversationId);
+    traceNode("pantry", "read", replayDisplay.after, pantry.conversationId);
+    showResult("after", after);
+  }
+
+  if (replayStepIndex === replaySteps.length) {
+    if (!cards.before.result) showResult("before", before);
+    if (!cards.after.result) showResult("after", after);
+    $("trace-toggle").textContent = "Replay";
+  } else if (!replayPaused) {
+    replayTimer = setTimeout(advanceReplay, 1250);
+  }
+}
+
+function startReplay(scenario) {
+  resetTrace();
+  replayScenario = scenario;
+  replayDisplay = scenario.display || {};
+  const beforeCalls = scenario.results.before.proof?.calls || [];
+  const afterCalls = scenario.results.after.proof?.calls || [];
+  const sharedFirstRead = beforeCalls[0]?.tool === "get_conversation"
+    && afterCalls[0]?.tool === "get_conversation"
+    && beforeCalls[0].input?.session_id === afterCalls[0].input?.session_id;
+  const bridgeId = scenario.results.after.proof?.bridge?.entityId;
+  const helplineId = selectedSource("before", scenario.results.before)?.conversationId;
+  const pantryId = selectedSource("after", scenario.results.after)?.conversationId;
+  const search = afterCalls.find((call) => call.tool === "search" && call.receipt?.entityId === bridgeId);
+  const history = afterCalls.find((call) => call.tool === "get_entity_history" && call.input?.entity_id === bridgeId);
+  const pantryRead = afterCalls.find((call) => call.tool === "get_conversation" && call.input?.session_id === pantryId);
+  const displayMatches = ["before", "after"].every((agent) => {
+    const label = replayDisplay[agent];
+    const result = scenario.results[agent];
+    return typeof label === "string" && selectedSource(agent, result)?.text?.includes(label)
+      && result.answer.includes(label);
+  });
+  if (!sharedFirstRead || !search || !history || !pantryRead || !displayMatches
+      || !history.receipt?.conversationIds?.includes(helplineId)
+      || !history.receipt.conversationIds.includes(pantryId)) {
+    throw new Error("This recording is missing a key memory read.");
+  }
+  replaySteps = [
+    { agent: "both", call: beforeCalls[0] },
+    { agent: "after", call: search },
+    { agent: "after", call: history },
+    { agent: "after", call: pantryRead }
+  ];
+  $("trace-player").hidden = false;
+  $("trace-count").textContent = `0 / ${replaySteps.length}`;
+  replayTimer = setTimeout(advanceReplay, 450);
 }
 
 async function compare(event) {
@@ -230,12 +415,13 @@ async function compare(event) {
   }
 
   running = true;
-  previewMode = false;
   errorMessage.hidden = true;
-  previewBadge.hidden = true;
   evidence.hidden = true;
   $("replay-proof").hidden = true;
-  if (replayMode) $("evidence-detail").open = false;
+  if (replayMode) {
+    resetTrace();
+    $("evidence-detail").open = false;
+  }
   prompt.disabled = true;
   examples.forEach((button) => { button.disabled = true; });
   runButton.disabled = true;
@@ -261,8 +447,7 @@ async function compare(event) {
       replayNote.textContent = `Recorded ${replayRecordedAt} with real agents and Neo4j Agent Memory. Dates in these fictional answers are frozen; choose another question to compare the saved runs.`;
       $("replay-question").textContent = `“${scenario.question}”`;
       $("replay-question").hidden = false;
-      showResult("before", scenario.results.before);
-      showResult("after", scenario.results.after);
+      startReplay(scenario);
     } else {
       await Promise.all([runAgent("before", question), runAgent("after", question)]);
     }
@@ -285,6 +470,18 @@ async function compare(event) {
 }
 
 form.addEventListener("submit", compare);
+$("trace-toggle").addEventListener("click", () => {
+  if (!replayScenario) return;
+  if (replayStepIndex >= replaySteps.length) {
+    prompt.value = replayScenario.question;
+    form.requestSubmit();
+    return;
+  }
+  replayPaused = !replayPaused;
+  $("trace-toggle").textContent = replayPaused ? "Resume" : "Pause";
+  clearTimeout(replayTimer);
+  if (!replayPaused) replayTimer = setTimeout(advanceReplay, 450);
+});
 prompt.addEventListener("keydown", (event) => {
   if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
     form.requestSubmit();
@@ -327,7 +524,7 @@ if (replayMode) {
   prompt.readOnly = true;
   prompt.setAttribute("aria-describedby", "replay-note");
   $("prompt-label").textContent = "Choose a recorded question";
-  $("prompt-caption").textContent = "Same model; only memory access changes";
+  $("prompt-caption").textContent = "Same model; different retrieval instructions and permissions";
   document.querySelector(".examples").setAttribute("aria-label", "Recorded questions");
   $("evidence-eyebrow").textContent = "RECORDED MEMORY READS · SOURCE IDS";
   $("calls-summary").textContent = "Inspect the recorded memory calls and source IDs";
@@ -337,32 +534,5 @@ if (replayMode) {
   loadReplay().then(() => form.requestSubmit()).catch((error) => {
     errorMessage.textContent = error instanceof Error ? error.message : "Recorded runs are unavailable.";
     errorMessage.hidden = false;
-  });
-}
-
-if (previewMode) {
-  previewBadge.hidden = false;
-  showResult("before", {
-    answer: "Wrenfield Pantry gives out free groceries this Saturday morning at Brightwater Hall. It is one block from the nearest bus stop.",
-    tools: ["get_conversation"], seconds: 18.4,
-    proof: {
-      calls: [{ tool: "get_conversation", input: { session_id: "1679b2a3-2dff-4830-a73d-a009cc7ddafa" } }],
-      sources: [{ kind: "helpline", conversationId: "1679b2a3-2dff-4830-a73d-a009cc7ddafa", messageId: "sample", text: "Wrenfield Pantry gives out free groceries tomorrow morning at Brightwater Hall." }],
-      bridge: null
-    }
-  });
-  showResult("after", {
-    answer: "Wrenfield Pantry holds its Saturday distribution at the Alder Branch Library community room from 10 AM to 1 PM. The library has a step-free entrance and an elevator.\n\nChecked: pantry coordination conversation, October 14, 2026.",
-    tools: ["get_conversation", "search", "get_entity_history", "get_conversation"], seconds: 29.7,
-    proof: {
-      calls: [
-        { tool: "get_conversation", input: { session_id: "1679b2a3-2dff-4830-a73d-a009cc7ddafa" } },
-        { tool: "search", input: { query: "Wrenfield Pantry", memory_types: ["entities"] } },
-        { tool: "get_entity_history", input: { entity_id: "sample" } },
-        { tool: "get_conversation", input: { session_id: "794dc0ab-2c26-483d-988e-ea08fbb5ae73" } }
-      ],
-      sources: [{ kind: "pantry", conversationId: "794dc0ab-2c26-483d-988e-ea08fbb5ae73", messageId: "sample", text: "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31." }],
-      bridge: { name: "Wrenfield Pantry", entityId: "sample", verified: true }
-    }
   });
 }

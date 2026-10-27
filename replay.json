@@ -5,6 +5,7 @@
     {
       "id": "groceries",
       "question": "Hi. Where can I get free groceries this Saturday? I do not have a car.",
+      "display": {"before": "Brightwater Hall", "after": "Alder Branch Library"},
       "recordedAt": "2026-10-27T19:31:20.312Z",
       "results": {
         "before": {
@@ -18,6 +19,23 @@
                 "tool": "get_conversation",
                 "input": {
                   "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                },
+                "observedAt": "2026-10-27T19:31:23.205Z",
+                "resultAt": "2026-10-27T19:31:24.852Z",
+                "receipt": {
+                  "summary": "Returned 8 helpline messages.",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                  ],
+                  "messageCount": 8,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    }
+                  ]
                 }
               }
             ],
@@ -49,6 +67,23 @@
                 "tool": "get_conversation",
                 "input": {
                   "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                },
+                "observedAt": "2026-10-27T19:31:23.368Z",
+                "resultAt": "2026-10-27T19:31:24.981Z",
+                "receipt": {
+                  "summary": "Returned 8 helpline messages.",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                  ],
+                  "messageCount": 8,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    }
+                  ]
                 }
               },
               {
@@ -58,30 +93,127 @@
                   "memory_types": [
                     "entities"
                   ]
+                },
+                "observedAt": "2026-10-27T19:31:24.047Z",
+                "resultAt": "2026-10-27T19:31:28.454Z",
+                "receipt": {
+                  "summary": "Returned 10 entities; found Wrenfield Pantry.",
+                  "entityId": "4227528d-7897-4afb-a02a-c5b88a37e205",
+                  "entityName": "Wrenfield Pantry",
+                  "entityType": "ORGANIZATION",
+                  "resultCount": 10,
+                  "sameNameCount": 2
                 }
               },
               {
                 "tool": "get_entity_history",
                 "input": {
                   "entity_id": "4227528d-7897-4afb-a02a-c5b88a37e205"
+                },
+                "observedAt": "2026-10-27T19:31:32.200Z",
+                "resultAt": "2026-10-27T19:31:33.250Z",
+                "receipt": {
+                  "summary": "Returned 7 messages across 2 conversations.",
+                  "entityId": "4227528d-7897-4afb-a02a-c5b88a37e205",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                    "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                  ],
+                  "messageCount": 7,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    },
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                      "role": "user",
+                      "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                    }
+                  ],
+                  "entityName": "Wrenfield Pantry"
                 }
               },
               {
                 "tool": "get_entity_history",
                 "input": {
                   "entity_id": "b37c15be-157d-461f-ab6e-e72dbb8e151d"
+                },
+                "observedAt": "2026-10-27T19:31:32.213Z",
+                "resultAt": "2026-10-27T19:31:37.036Z",
+                "receipt": {
+                  "summary": "Returned 2 messages across 1 conversation.",
+                  "entityId": "b37c15be-157d-461f-ab6e-e72dbb8e151d",
+                  "conversationIds": [
+                    "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                  ],
+                  "messageCount": 2,
+                  "messages": [
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "52ff2561-47e6-4caa-9b42-9e48d9077386",
+                      "role": "assistant",
+                      "text": "Saved to shared memory for partner assistants on Wednesday, October 14, 2026. Wrenfield Pantry Saturday site from October 17 to December 31, 2026: Alder Branch Library community room, 10 AM to 1 PM."
+                    }
+                  ],
+                  "entityName": "Wrenfield Pantry"
                 }
               },
               {
                 "tool": "get_entity_history",
                 "input": {
                   "entity_id": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5"
+                },
+                "observedAt": "2026-10-27T19:31:32.956Z",
+                "resultAt": "2026-10-27T19:31:37.361Z",
+                "receipt": {
+                  "summary": "Returned 4 messages across 1 conversation.",
+                  "entityId": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                  ],
+                  "messageCount": 4,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    }
+                  ],
+                  "entityName": "Brightwater Hall"
                 }
               },
               {
                 "tool": "get_conversation",
                 "input": {
                   "session_id": "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                },
+                "observedAt": "2026-10-27T19:31:42.774Z",
+                "resultAt": "2026-10-27T19:31:47.758Z",
+                "receipt": {
+                  "summary": "Returned 8 coordinator messages.",
+                  "conversationIds": [
+                    "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                  ],
+                  "messageCount": 8,
+                  "messages": [
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                      "role": "user",
+                      "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                    },
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "efadcd66-9c0e-40b9-a930-fe7d6aef5227",
+                      "role": "user",
+                      "text": "Alder Branch Library has a step-free entrance and an elevator to the community room. Nobody has to show ID."
+                    }
+                  ]
                 }
               }
             ],
@@ -130,6 +262,7 @@
     {
       "id": "accessibility",
       "question": "Is the place you'd send me wheelchair accessible?",
+      "display": {"before": "Brightwater Hall", "after": "Alder Branch Library"},
       "recordedAt": "2026-10-23T16:27:35.072Z",
       "results": {
         "before": {
@@ -143,6 +276,23 @@
                 "tool": "get_conversation",
                 "input": {
                   "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                },
+                "observedAt": "2026-10-23T16:27:36.368Z",
+                "resultAt": "2026-10-23T16:27:36.852Z",
+                "receipt": {
+                  "summary": "Returned 8 helpline messages.",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                  ],
+                  "messageCount": 8,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    }
+                  ]
                 }
               }
             ],
@@ -175,6 +325,23 @@
                 "tool": "get_conversation",
                 "input": {
                   "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                },
+                "observedAt": "2026-10-23T16:27:37.865Z",
+                "resultAt": "2026-10-23T16:27:38.075Z",
+                "receipt": {
+                  "summary": "Returned 8 helpline messages.",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                  ],
+                  "messageCount": 8,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    }
+                  ]
                 }
               },
               {
@@ -184,6 +351,16 @@
                   "memory_types": [
                     "entities"
                   ]
+                },
+                "observedAt": "2026-10-23T16:27:40.163Z",
+                "resultAt": "2026-10-23T16:27:40.507Z",
+                "receipt": {
+                  "summary": "Returned 10 entities; found Brightwater Hall.",
+                  "entityId": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5",
+                  "entityName": "Brightwater Hall",
+                  "entityType": "LOCATION",
+                  "resultCount": 10,
+                  "sameNameCount": 1
                 }
               },
               {
@@ -193,30 +370,133 @@
                   "memory_types": [
                     "entities"
                   ]
+                },
+                "observedAt": "2026-10-23T16:27:40.354Z",
+                "resultAt": "2026-10-23T16:27:40.696Z",
+                "receipt": {
+                  "summary": "Returned 10 entities; found Wrenfield Pantry.",
+                  "entityId": "4227528d-7897-4afb-a02a-c5b88a37e205",
+                  "entityName": "Wrenfield Pantry",
+                  "entityType": "ORGANIZATION",
+                  "resultCount": 10,
+                  "sameNameCount": 2
                 }
               },
               {
                 "tool": "get_entity_history",
                 "input": {
                   "entity_id": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5"
+                },
+                "observedAt": "2026-10-23T16:27:43.177Z",
+                "resultAt": "2026-10-23T16:27:43.404Z",
+                "receipt": {
+                  "summary": "Returned 4 messages across 1 conversation.",
+                  "entityId": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                  ],
+                  "messageCount": 4,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    }
+                  ],
+                  "entityName": "Brightwater Hall"
                 }
               },
               {
                 "tool": "get_entity_history",
                 "input": {
                   "entity_id": "4227528d-7897-4afb-a02a-c5b88a37e205"
+                },
+                "observedAt": "2026-10-23T16:27:43.534Z",
+                "resultAt": "2026-10-23T16:27:43.652Z",
+                "receipt": {
+                  "summary": "Returned 7 messages across 2 conversations.",
+                  "entityId": "4227528d-7897-4afb-a02a-c5b88a37e205",
+                  "conversationIds": [
+                    "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                    "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                  ],
+                  "messageCount": 7,
+                  "messages": [
+                    {
+                      "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                      "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                      "role": "assistant",
+                      "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                    },
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                      "role": "user",
+                      "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                    }
+                  ],
+                  "entityName": "Wrenfield Pantry"
                 }
               },
               {
                 "tool": "get_entity_history",
                 "input": {
                   "entity_id": "55eee7c0-e823-4c26-8a30-ec046c16cfea"
+                },
+                "observedAt": "2026-10-23T16:27:43.844Z",
+                "resultAt": "2026-10-23T16:27:43.940Z",
+                "receipt": {
+                  "summary": "Returned 5 messages across 1 conversation.",
+                  "entityId": "55eee7c0-e823-4c26-8a30-ec046c16cfea",
+                  "conversationIds": [
+                    "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                  ],
+                  "messageCount": 5,
+                  "messages": [
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                      "role": "user",
+                      "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                    },
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "efadcd66-9c0e-40b9-a930-fe7d6aef5227",
+                      "role": "user",
+                      "text": "Alder Branch Library has a step-free entrance and an elevator to the community room. Nobody has to show ID."
+                    }
+                  ],
+                  "entityName": "Alder Branch Library"
                 }
               },
               {
                 "tool": "get_conversation",
                 "input": {
                   "session_id": "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                },
+                "observedAt": "2026-10-23T16:27:47.629Z",
+                "resultAt": "2026-10-23T16:27:47.847Z",
+                "receipt": {
+                  "summary": "Returned 8 coordinator messages.",
+                  "conversationIds": [
+                    "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                  ],
+                  "messageCount": 8,
+                  "messages": [
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                      "role": "user",
+                      "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                    },
+                    {
+                      "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                      "messageId": "efadcd66-9c0e-40b9-a930-fe7d6aef5227",
+                      "role": "user",
+                      "text": "Alder Branch Library has a step-free entrance and an elevator to the community room. Nobody has to show ID."
+                    }
+                  ]
                 }
               }
             ],
@@ -262,5 +542,7 @@
         "after": "f291d5cadaa09ac8c1666ae2552053a628cae0cbc2c74a215576ff8d9155339b"
       }
     }
-  ]
+  ],
+  "traceEventsFile": "trace-events.json",
+  "graphProofFile": "graph-proof.json"
 }

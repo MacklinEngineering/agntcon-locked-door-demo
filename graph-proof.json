@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "kind": "captured-read-only-cypher-result",
+  "retrievedAt": "2026-10-27T22:46:34Z",
+  "source": "Neo4j Agent Memory workspace query API",
+  "scenario": "Fictional seeded Wrenfield Pantry demo",
+  "queries": {
+    "crossConversationPath": "MATCH (cb:Conversation)-[h_old:HAS_MESSAGE]->(mb:Message)-[r_old:MENTIONS]->(p:Entity)<-[r_new:MENTIONS]-(ma:Message)<-[h_new:HAS_MESSAGE]-(ca:Conversation) WHERE cb.id = \"1679b2a3-2dff-4830-a73d-a009cc7ddafa\" AND mb.id = \"49f808f7-5389-497f-a4e0-5330cb889cc9\" AND p.id = \"4227528d-7897-4afb-a02a-c5b88a37e205\" AND ma.id = \"18230e80-bbbd-47ba-be84-646e221dbd7e\" AND ca.id = \"794dc0ab-2c26-483d-988e-ea08fbb5ae73\" RETURN cb.id AS old_conversation_id, mb.id AS old_message_id, p.id AS pantry_id, p.name AS pantry_name, p.type AS pantry_type, ma.id AS new_message_id, ca.id AS new_conversation_id, mb.content AS old_excerpt, ma.content AS new_excerpt, elementId(h_old) AS old_has_message_edge, elementId(r_old) AS old_mentions_edge, elementId(r_new) AS new_mentions_edge, elementId(h_new) AS new_has_message_edge, keys(h_old) AS old_has_message_keys, keys(r_old) AS old_mentions_keys LIMIT 1",
+    "placeMentions": "MATCH (old:Entity)<-[a:MENTIONS]-(mb:Message)-[b:MENTIONS]->(p:Entity)<-[d:MENTIONS]-(ma:Message)-[e:MENTIONS]->(new:Entity) WHERE mb.id = \"49f808f7-5389-497f-a4e0-5330cb889cc9\" AND ma.id = \"18230e80-bbbd-47ba-be84-646e221dbd7e\" AND p.id = \"4227528d-7897-4afb-a02a-c5b88a37e205\" AND toLower(old.name) = \"brightwater hall\" AND toLower(new.name) = \"alder branch library\" RETURN old.id AS old_place_id, old.name AS old_place, p.id AS pantry_id, new.id AS new_place_id, new.name AS new_place, elementId(a) AS old_place_mention_edge, elementId(b) AS old_pantry_mention_edge, elementId(d) AS new_pantry_mention_edge, elementId(e) AS new_place_mention_edge LIMIT 5",
+    "entityTypes": "MATCH (e:Entity) WHERE e.id IN [\"4271b5c5-0a77-4d60-9620-a0fc1af89cd5\", \"55eee7c0-e823-4c26-8a30-ec046c16cfea\"] RETURN e.id AS id, e.name AS name, e.type AS type",
+    "traceNodeCount": "MATCH (s) WHERE any(l IN labels(s) WHERE l CONTAINS \"Step\" OR l CONTAINS \"Trace\" OR l CONTAINS \"Reason\" OR l = \"ToolCall\") RETURN count(s) AS trace_nodes"
+  },
+  "result": {
+    "pathRows": 1,
+    "placeRows": 1,
+    "nodes": [
+      {"id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa", "label": "Conversation", "name": "Community helpline"},
+      {"id": "49f808f7-5389-497f-a4e0-5330cb889cc9", "label": "Message", "excerpt": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning."},
+      {"id": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5", "label": "Entity", "type": "Location", "name": "Brightwater Hall"},
+      {"id": "4227528d-7897-4afb-a02a-c5b88a37e205", "label": "Entity", "type": "Organization", "name": "Wrenfield Pantry"},
+      {"id": "18230e80-bbbd-47ba-be84-646e221dbd7e", "label": "Message", "excerpt": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room."},
+      {"id": "55eee7c0-e823-4c26-8a30-ec046c16cfea", "label": "Entity", "type": "Organization", "name": "Alder Branch Library"},
+      {"id": "794dc0ab-2c26-483d-988e-ea08fbb5ae73", "label": "Conversation", "name": "Pantry coordination"}
+    ],
+    "edges": [
+      {"elementId": "5:7a01a75d-328d-4783-af0c-a1df75e97e2f:1168691799884038193", "type": "HAS_MESSAGE", "from": "1679b2a3-2dff-4830-a73d-a009cc7ddafa", "to": "49f808f7-5389-497f-a4e0-5330cb889cc9"},
+      {"elementId": "5:7a01a75d-328d-4783-af0c-a1df75e97e2f:1159682401606041632", "type": "MENTIONS", "from": "49f808f7-5389-497f-a4e0-5330cb889cc9", "to": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5"},
+      {"elementId": "5:7a01a75d-328d-4783-af0c-a1df75e97e2f:1155178801978671136", "type": "MENTIONS", "from": "49f808f7-5389-497f-a4e0-5330cb889cc9", "to": "4227528d-7897-4afb-a02a-c5b88a37e205"},
+      {"elementId": "5:7a01a75d-328d-4783-af0c-a1df75e97e2f:1152927002164985875", "type": "MENTIONS", "from": "18230e80-bbbd-47ba-be84-646e221dbd7e", "to": "4227528d-7897-4afb-a02a-c5b88a37e205"},
+      {"elementId": "5:7a01a75d-328d-4783-af0c-a1df75e97e2f:1155178801978671123", "type": "MENTIONS", "from": "18230e80-bbbd-47ba-be84-646e221dbd7e", "to": "55eee7c0-e823-4c26-8a30-ec046c16cfea"},
+      {"elementId": "5:7a01a75d-328d-4783-af0c-a1df75e97e2f:1157432800815611952", "type": "HAS_MESSAGE", "from": "794dc0ab-2c26-483d-988e-ea08fbb5ae73", "to": "18230e80-bbbd-47ba-be84-646e221dbd7e"}
+    ]
+  },
+  "provenance": {
+    "matchingTraceNodes": 0,
+    "scope": "Node labels containing Step, Trace, or Reason, or equal to ToolCall",
+    "interpretation": "The workspace stores message/entity links. This query found no stored reasoning or tool-call trace nodes for the answer; an application must record answer-source provenance separately."
+  }
+}

@@ -26,7 +26,6 @@
         <span><strong>Agent Memory Demo</strong><small>Siloed memory vs shared graph</small></span>
       </div>
       <div class="topbar-badges">
-        <span class="preview-badge" id="preview-badge" hidden>Preview answers</span>
         <span class="labs-badge">Neo4j Labs · Synthetic data</span>
       </div>
     </div>
@@ -36,7 +35,7 @@
     <section class="intro">
       <p class="eyebrow" id="intro-eyebrow">THE LOCKED DOOR</p>
       <h1><span id="headline-first">Same question.</span> <span id="headline-second">Only graph memory finds the pantry’s move.</span></h1>
-      <p class="intro-outcome">The siloed agent can only cite the older <strong>Brightwater Hall</strong> note. The graph agent follows Wrenfield Pantry to the coordinator’s newer <strong>Alder Branch Library</strong> update.</p>
+      <p class="intro-outcome">One agent reads a known conversation. The other follows an entity into a partner conversation for the pantry's move notice.</p>
       <p class="intro-proof"><strong>Proof to inspect:</strong> helpline note → Wrenfield Pantry entity history → pantry update. The recorded memory calls and message IDs are below.</p>
       <div class="replay-proof" id="replay-proof" hidden>
         <strong>VERIFIED READ PATH</strong>
@@ -47,7 +46,7 @@
     <form class="prompt-panel" id="prompt-form">
       <div class="prompt-heading">
         <label for="prompt" id="prompt-label">Test the same question</label>
-        <span id="prompt-caption">Same model; only memory access changes</span>
+        <span id="prompt-caption">Same model; different retrieval instructions and permissions</span>
       </div>
       <div class="prompt-control">
         <textarea id="prompt" name="prompt" rows="2" maxlength="1500" required>Hi. Where can I get free groceries this Saturday? I do not have a car.</textarea>
@@ -65,15 +64,40 @@
       <p class="form-error" id="form-error" role="alert" hidden></p>
     </form>
 
+    <section class="trace-player" id="trace-player" aria-label="Recorded MCP call playback" hidden>
+      <div class="trace-heading">
+        <div><strong>Recorded MCP run · key reads</strong><small>Playback pace is illustrative</small></div>
+        <span class="trace-count" id="trace-count">0 / 0</span>
+        <div class="trace-controls">
+          <button type="button" id="trace-toggle">Pause</button>
+        </div>
+      </div>
+      <div class="trace-progress" aria-hidden="true"><span id="trace-progress-fill"></span></div>
+      <div class="trace-current" aria-live="polite">
+        <span class="trace-agent" id="trace-agent">Waiting for recorded calls</span>
+        <code id="trace-call"></code>
+        <p id="trace-finding"></p>
+        <div class="trace-receipts" id="trace-receipts"></div>
+      </div>
+      <div class="trace-route" aria-label="Memory path uncovered by the calls">
+        <div class="trace-node" id="trace-helpline"><small>HELPLINE NOTE</small><strong id="trace-helpline-name">—</strong><code id="trace-helpline-id"></code></div>
+        <span class="trace-link" id="trace-link-one" aria-hidden="true">→</span>
+        <div class="trace-node" id="trace-entity"><small>ENTITY HISTORY</small><strong id="trace-entity-name">—</strong><code id="trace-entity-id"></code></div>
+        <span class="trace-link" id="trace-link-two" aria-hidden="true">→</span>
+        <div class="trace-node" id="trace-pantry"><small>PANTRY UPDATE</small><strong id="trace-pantry-name">—</strong><code id="trace-pantry-id"></code></div>
+      </div>
+      <p class="trace-key">Memory extracted the entity ↔ message links. MCP reads were captured in a separate transcript; no answer-source trace was stored in memory.</p>
+    </section>
+
     <section class="comparison" aria-label="Agent answers">
       <article class="agent-card before-card" id="before-card" aria-busy="false">
         <header class="card-header">
           <span class="card-index">01</span>
-          <div class="card-heading"><small>SILOED MEMORY</small><h2>Helpline log only</h2></div>
+          <div class="card-heading"><small>KNOWN ID</small><h2>One conversation</h2></div>
           <span class="status" id="before-status" role="status">Ready</span>
         </header>
-        <div class="scope">Memory scope <strong>1 helpline conversation</strong></div>
-        <div class="outcome-block" id="before-outcome" hidden><small>OLDER HELPLINE NOTE</small><strong>Brightwater Hall</strong></div>
+        <div class="scope">Read scope <strong>Known helpline conversation ID</strong></div>
+        <div class="outcome-block" id="before-outcome" hidden><small>OLDER HELPLINE NOTE</small><strong></strong></div>
         <details class="card-detail" id="before-detail" open>
           <summary>Read agent answer and source</summary>
           <div class="answer-block">
@@ -92,11 +116,11 @@
       <article class="agent-card after-card" id="after-card" aria-busy="false">
         <header class="card-header">
           <span class="card-index">02</span>
-          <div class="card-heading"><small>SHARED GRAPH</small><h2>Follows pantry update</h2></div>
+          <div class="card-heading"><small>GRAPH TRAVERSAL</small><h2>Follows shared entity</h2></div>
           <span class="status" id="after-status" role="status">Ready</span>
         </header>
-        <div class="scope">Memory scope <strong>Connected conversations in one workspace</strong></div>
-        <div class="outcome-block" id="after-outcome" hidden><small>NEWER PANTRY UPDATE</small><strong>Alder Branch Library</strong></div>
+        <div class="scope">Read scope <strong>Entity history across conversations</strong></div>
+        <div class="outcome-block" id="after-outcome" hidden><small>PANTRY MOVE NOTICE</small><strong></strong></div>
         <details class="card-detail" id="after-detail" open>
           <summary>Read agent answer and source</summary>
           <div class="answer-block">
@@ -115,7 +139,7 @@
 
     <section class="evidence" id="evidence" aria-labelledby="evidence-title" hidden>
       <header class="evidence-heading">
-        <div><p class="eyebrow" id="evidence-eyebrow">ACTUAL MEMORY READS · SOURCE IDS</p><h2 id="evidence-title">Did the agent reach the newer pantry update?</h2></div>
+        <div><p class="eyebrow" id="evidence-eyebrow">ACTUAL MEMORY READS · SOURCE IDS</p><h2 id="evidence-title">Did the agent reach the pantry move notice?</h2></div>
         <span class="proof-status" id="proof-status" role="status"></span>
       </header>
       <p class="proof-explanation" id="proof-explanation"></p>
@@ -138,7 +162,7 @@
           <div><strong>Siloed agent</strong><ol id="before-calls"></ol></div>
           <div><strong>Shared graph agent</strong><ol id="after-calls"></ol></div>
         </div>
-        <p class="replay-data-link" id="replay-data-link" hidden><a href="./replay.json" target="_blank" rel="noopener">Open the full recorded run data (JSON)</a></p>
+        <p class="replay-data-link" id="replay-data-link" hidden><a href="./replay.json" target="_blank" rel="noopener">Recorded run data</a><a href="./trace-events.json" id="trace-events-link" target="_blank" rel="noopener" hidden>Captured MCP events</a><a href="./graph-proof.json" id="graph-proof-link" target="_blank" rel="noopener" hidden>Graph query receipt</a></p>
       </details>
       </details>
     </section>
