@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f7fb">
+  <meta name="demo-mode" content="replay">
+  <title>Neo4j Agent Memory · The Locked Door</title>
+  <link rel="icon" href="./favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <span class="neo4j-mark" aria-hidden="true">
+          <svg viewBox="0 0 40 40">
+            <circle cx="20" cy="20" r="19" fill="#008ccf"/>
+            <path d="M20 11 11 27h18L20 11Z" fill="none" stroke="white" stroke-width="2"/>
+            <circle cx="20" cy="10" r="3.2" fill="white"/>
+            <circle cx="10.5" cy="27" r="3.2" fill="white"/>
+            <circle cx="29.5" cy="27" r="3.2" fill="white"/>
+          </svg>
+        </span>
+        <span><strong>Agent Memory Demo</strong><small>Siloed memory vs shared graph</small></span>
+      </div>
+      <div class="topbar-badges">
+        <span class="preview-badge" id="preview-badge" hidden>Preview answers</span>
+        <span class="replay-badge" id="replay-badge" hidden>Recorded agent runs</span>
+        <span class="labs-badge">Neo4j Labs · Synthetic data</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="shell">
+    <section class="intro">
+      <p class="eyebrow">THE LOCKED DOOR</p>
+      <h1>Can shared memory prevent a <span>locked-door referral?</span></h1>
+      <p>Same helpline role, model, question, and Neo4j Agent Memory workspace. The left agent reads only its conversation. The right follows a shared pantry entity into a partner conversation to check the newer location.</p>
+    </section>
+
+    <form class="prompt-panel" id="prompt-form">
+      <div class="prompt-heading">
+        <label for="prompt" id="prompt-label">Ask both assistants</label>
+        <span id="prompt-caption">Same model and prompt, two memory scopes</span>
+      </div>
+      <div class="prompt-control">
+        <textarea id="prompt" name="prompt" rows="2" maxlength="1500" required>Hi. Where can I get free groceries this Saturday? I do not have a car.</textarea>
+        <div class="examples" role="group" aria-label="Example questions">
+          <button type="button" data-question="Hi. Where can I get free groceries this Saturday? I do not have a car.">Groceries</button>
+          <button type="button" data-question="Is the place you'd send me wheelchair accessible?">Accessibility</button>
+        </div>
+      </div>
+      <button class="run-button" type="submit" id="run-button">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 9 6-9 6V6Z"/></svg>
+        <span>Run comparison</span>
+      </button>
+      <p class="replay-note" id="replay-note" hidden>Choose a recorded question to inspect the captured answers and memory evidence.</p>
+      <p class="form-error" id="form-error" role="alert" hidden></p>
+    </form>
+
+    <section class="comparison" aria-label="Agent answers">
+      <article class="agent-card before-card" id="before-card" aria-busy="false">
+        <header class="card-header">
+          <span class="card-index">01</span>
+          <div class="card-heading"><small>SILOED MEMORY</small><h2>Helpline log only</h2></div>
+          <span class="status" id="before-status" role="status">Ready</span>
+        </header>
+        <div class="scope">Memory scope <strong>1 helpline conversation</strong></div>
+        <div class="answer-block">
+          <div class="answer-heading"><span>ASSISTANT ANSWER</span><span id="before-time">—</span></div>
+          <p class="answer" id="before-answer" role="status">Run the comparison to see this assistant’s answer.</p>
+        </div>
+        <div class="source-block" id="before-source" hidden>
+          <div class="source-heading">SOURCE MESSAGE RETURNED BY MEMORY</div>
+          <p id="before-source-text"></p>
+          <code id="before-source-id"></code>
+        </div>
+        <div class="steps-block"><span>MEMORY LOOKUPS</span><ol id="before-steps"><li class="placeholder">Waiting for a question</li></ol></div>
+      </article>
+
+      <article class="agent-card after-card" id="after-card" aria-busy="false">
+        <header class="card-header">
+          <span class="card-index">02</span>
+          <div class="card-heading"><small>SHARED GRAPH</small><h2>Cross-agent memory</h2></div>
+          <span class="status" id="after-status" role="status">Ready</span>
+        </header>
+        <div class="scope">Memory scope <strong>Connected conversations in one workspace</strong></div>
+        <div class="answer-block">
+          <div class="answer-heading"><span>ASSISTANT ANSWER</span><span id="after-time">—</span></div>
+          <p class="answer" id="after-answer" role="status">Run the comparison to see this assistant’s answer.</p>
+        </div>
+        <div class="source-block" id="after-source" hidden>
+          <div class="source-heading">PARTNER MESSAGE RETURNED BY MEMORY</div>
+          <p id="after-source-text"></p>
+          <code id="after-source-id"></code>
+        </div>
+        <div class="steps-block"><span>MEMORY LOOKUPS</span><ol id="after-steps"><li class="placeholder">Waiting for a question</li></ol></div>
+      </article>
+    </section>
+
+    <section class="evidence" id="evidence" aria-labelledby="evidence-title" hidden>
+      <header class="evidence-heading">
+        <div><p class="eyebrow" id="evidence-eyebrow">ACTUAL MEMORY READS · SOURCE IDS</p><h2 id="evidence-title">Did the agent cross into the pantry’s conversation?</h2></div>
+        <span class="proof-status" id="proof-status" role="status"></span>
+      </header>
+      <p class="proof-explanation" id="proof-explanation"></p>
+      <div class="path" id="observed-path" hidden>
+        <div class="path-node stale"><span class="node-dot">1</span><small>HELPLINE CONVERSATION</small><strong id="path-helpline-name">Helpline source</strong><code id="path-helpline-id"></code></div>
+        <span class="path-line" aria-hidden="true"></span>
+        <div class="path-node bridge"><span class="node-dot">2</span><small>ENTITY HISTORY</small><strong id="path-bridge-name"></strong><code id="path-bridge-id"></code></div>
+        <span class="path-line" aria-hidden="true"></span>
+        <div class="path-node current"><span class="node-dot">3</span><small>PANTRY CONVERSATION</small><strong id="path-pantry-name">Coordinator’s update</strong><code id="path-pantry-id"></code></div>
+      </div>
+      <div class="history-evidence" id="history-evidence" hidden>
+        <h3>Entity history records returned by memory</h3>
+        <ol id="history-evidence-list"></ol>
+      </div>
+      <details class="call-details">
+        <summary id="calls-summary">Inspect the memory calls and source IDs</summary>
+        <div class="call-columns">
+          <div><strong>Siloed agent</strong><ol id="before-calls"></ol></div>
+          <div><strong>Shared graph agent</strong><ol id="after-calls"></ol></div>
+        </div>
+        <p class="replay-data-link" id="replay-data-link" hidden><a href="./replay.json" target="_blank" rel="noopener">Open the full recorded run data (JSON)</a></p>
+      </details>
+    </section>
+  </main>
+
+  <footer class="footer"><span>All names and locations are fictional.</span><span>Neo4j Agent Memory is a Labs project.</span></footer>
+</body>
+</html>

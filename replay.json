@@ -1,0 +1,266 @@
+{
+  "formatVersion": 1,
+  "description": "Real Claude Code agent sessions against a synthetic Neo4j Agent Memory workspace, captured from local session transcripts. This public page replays them; it does not run the agents.",
+  "scenarios": [
+    {
+      "id": "groceries",
+      "question": "Hi. Where can I get free groceries this Saturday? I do not have a car.",
+      "recordedAt": "2026-10-27T19:31:20.312Z",
+      "results": {
+        "before": {
+          "answer": "Wrenfield Pantry gave out free groceries at Brightwater Hall on a recent Saturday morning. I don't have information confirming that it's open this Saturday, so please check before you go. Brightwater Hall is one block from the nearest bus stop, so you can get there without a car. The pantry doesn't ask for your name or any paperwork, and it helps to bring your own bags.",
+          "tools": [
+            "get_conversation"
+          ],
+          "proof": {
+            "calls": [
+              {
+                "tool": "get_conversation",
+                "input": {
+                  "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "kind": "helpline",
+                "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+              }
+            ],
+            "bridge": null
+          },
+          "seconds": 9.4
+        },
+        "after": {
+          "answer": "This Saturday (October 31), Wrenfield Pantry is giving out free groceries from 10 AM to 1 PM in the Alder Branch Library community room. Its usual hall, Brightwater Hall, is closed, and the pantry will be at the library every Saturday through December 31. Nobody has to show ID. The library has a step-free entrance and an elevator up to the community room.\n\nI don't have any bus or transit information for the library, so I can't tell you which stop is closest.\n\n**Checked:** The pantry coordinator's update (conversation 794dc0ab-2c26-483d-988e-ea08fbb5ae73, written October 14, 2026) moved the pantry from Brightwater Hall to the library. That replaces the older directory listing for Brightwater Hall.",
+          "tools": [
+            "get_conversation",
+            "search",
+            "get_entity_history",
+            "get_entity_history",
+            "get_entity_history",
+            "get_conversation"
+          ],
+          "proof": {
+            "calls": [
+              {
+                "tool": "get_conversation",
+                "input": {
+                  "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                }
+              },
+              {
+                "tool": "search",
+                "input": {
+                  "query": "free groceries food pantry",
+                  "memory_types": [
+                    "entities"
+                  ]
+                }
+              },
+              {
+                "tool": "get_entity_history",
+                "input": {
+                  "entity_id": "4227528d-7897-4afb-a02a-c5b88a37e205"
+                }
+              },
+              {
+                "tool": "get_entity_history",
+                "input": {
+                  "entity_id": "b37c15be-157d-461f-ab6e-e72dbb8e151d"
+                }
+              },
+              {
+                "tool": "get_entity_history",
+                "input": {
+                  "entity_id": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5"
+                }
+              },
+              {
+                "tool": "get_conversation",
+                "input": {
+                  "session_id": "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "kind": "helpline",
+                "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+              },
+              {
+                "kind": "pantry",
+                "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                "messageId": "52ff2561-47e6-4caa-9b42-9e48d9077386",
+                "text": "Saved to shared memory for partner assistants on Wednesday, October 14, 2026. Wrenfield Pantry Saturday site from October 17 to December 31, 2026: Alder Branch Library community room, 10 AM to 1 PM."
+              }
+            ],
+            "bridge": {
+              "name": "Wrenfield Pantry",
+              "entityId": "4227528d-7897-4afb-a02a-c5b88a37e205",
+              "verified": true,
+              "historyEvidence": [
+                {
+                  "kind": "helpline",
+                  "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                  "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                  "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                },
+                {
+                  "kind": "pantry",
+                  "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                  "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                  "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                }
+              ]
+            }
+          },
+          "seconds": 31.7
+        }
+      },
+      "traceSha256": {
+        "before": "950116448debca538b26e0ada3b4eb83fc826a31732f01d53b566e56af8dc350",
+        "after": "6188a19d3ecfb0175838e134b62907f35cc5cca6e5fb97ab9b2a8fcd5016f399"
+      }
+    },
+    {
+      "id": "accessibility",
+      "question": "Is the place you'd send me wheelchair accessible?",
+      "recordedAt": "2026-10-23T16:27:35.072Z",
+      "results": {
+        "before": {
+          "answer": "I don't have any information on whether Brightwater Hall is wheelchair accessible. What I can tell you is that it's one block from the nearest bus stop, and Wrenfield Pantry doesn't ask for any paperwork. I'd suggest checking on accessibility with the pantry before you go.",
+          "tools": [
+            "get_conversation"
+          ],
+          "proof": {
+            "calls": [
+              {
+                "tool": "get_conversation",
+                "input": {
+                  "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "kind": "helpline",
+                "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+              }
+            ],
+            "bridge": null
+          },
+          "seconds": 3.3
+        },
+        "after": {
+          "answer": "Yes. The place to go is the Alder Branch Library community room, not Brightwater Hall, and the library has a step-free entrance and an elevator up to the community room. The pantry is there from 10 AM to 1 PM, and no ID is needed. I don't have any information on bus stops near the library, so please check that before you travel, since the bus stop I mentioned earlier was for Brightwater Hall.\n\n**Checked:** The pantry coordinator's update in the partner assistant's conversation (794dc0ab-2c26-483d-988e-ea08fbb5ae73), written Wednesday, October 14, 2026, moved the Saturday distribution to the library from October 17. That replaces the Brightwater Hall site I gave you earlier, which came from the September directory.",
+          "tools": [
+            "get_conversation",
+            "search",
+            "search",
+            "get_entity_history",
+            "get_entity_history",
+            "get_entity_history",
+            "get_conversation"
+          ],
+          "proof": {
+            "calls": [
+              {
+                "tool": "get_conversation",
+                "input": {
+                  "session_id": "1679b2a3-2dff-4830-a73d-a009cc7ddafa"
+                }
+              },
+              {
+                "tool": "search",
+                "input": {
+                  "query": "Brightwater Hall",
+                  "memory_types": [
+                    "entities"
+                  ]
+                }
+              },
+              {
+                "tool": "search",
+                "input": {
+                  "query": "Wrenfield Pantry",
+                  "memory_types": [
+                    "entities"
+                  ]
+                }
+              },
+              {
+                "tool": "get_entity_history",
+                "input": {
+                  "entity_id": "4271b5c5-0a77-4d60-9620-a0fc1af89cd5"
+                }
+              },
+              {
+                "tool": "get_entity_history",
+                "input": {
+                  "entity_id": "4227528d-7897-4afb-a02a-c5b88a37e205"
+                }
+              },
+              {
+                "tool": "get_entity_history",
+                "input": {
+                  "entity_id": "55eee7c0-e823-4c26-8a30-ec046c16cfea"
+                }
+              },
+              {
+                "tool": "get_conversation",
+                "input": {
+                  "session_id": "794dc0ab-2c26-483d-988e-ea08fbb5ae73"
+                }
+              }
+            ],
+            "sources": [
+              {
+                "kind": "helpline",
+                "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+              },
+              {
+                "kind": "pantry",
+                "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                "messageId": "52ff2561-47e6-4caa-9b42-9e48d9077386",
+                "text": "Saved to shared memory for partner assistants on Wednesday, October 14, 2026. Wrenfield Pantry Saturday site from October 17 to December 31, 2026: Alder Branch Library community room, 10 AM to 1 PM."
+              }
+            ],
+            "bridge": {
+              "name": "Wrenfield Pantry",
+              "entityId": "4227528d-7897-4afb-a02a-c5b88a37e205",
+              "verified": true,
+              "historyEvidence": [
+                {
+                  "kind": "helpline",
+                  "conversationId": "1679b2a3-2dff-4830-a73d-a009cc7ddafa",
+                  "messageId": "49f808f7-5389-497f-a4e0-5330cb889cc9",
+                  "text": "Referral logged on Friday, October 16, 2026: caller sent to Wrenfield Pantry at Brightwater Hall for free groceries the next morning. Site taken from the community resource directory, September 2026 edition. No personal details recorded."
+                },
+                {
+                  "kind": "pantry",
+                  "conversationId": "794dc0ab-2c26-483d-988e-ea08fbb5ae73",
+                  "messageId": "18230e80-bbbd-47ba-be84-646e221dbd7e",
+                  "text": "Starting Saturday, October 17, the Wrenfield Pantry Saturday distribution moves to the Alder Branch Library community room. Same hours, 10 AM to 1 PM, through December 31."
+                }
+              ]
+            }
+          },
+          "seconds": 18.7
+        }
+      },
+      "traceSha256": {
+        "before": "e05a3f0512f7ca94e4da58ba6adac7bc8c9948bd3d5d2850ad73452bef908f93",
+        "after": "f291d5cadaa09ac8c1666ae2552053a628cae0cbc2c74a215576ff8d9155339b"
+      }
+    }
+  ]
+}
